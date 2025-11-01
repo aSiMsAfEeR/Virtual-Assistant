@@ -5,18 +5,22 @@ import musicLibrary
 
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
+
+# Initialize OpenAI client (optional - for advanced queries)
+try:
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "YOUR_API_KEY_HERE"))
+    openai_available = True
+except:
+    openai_available = False
+
 def speak(text):
     engine.say(text)
     engine.runAndWait()
-
 
 def processCommand(c):
     if 'open youtube' in c.lower():
         speak("Opening YouTube")
         webbrowser.open("https://www.youtube.com")
-    elif 'open google' in c.lower():
-        speak("Opening Google")
-        webbrowser.open("https://www.google.com")
     elif 'open google' in c.lower():
         speak("Opening Google")
         webbrowser.open("https://www.google.com")
@@ -45,42 +49,58 @@ def processCommand(c):
         speak("Opening ClickUp")
         webbrowser.open("https://www.clickup.com")
     elif c.lower().startswith("play"):
-        song = c.lower().split(" ")[1]
-        link = musicLibrary.music[song]
-        webbrowser.open(link)
-        speak(f"Playing {song}")
-    elif "news" in c.lower().startswith("news"):
+        try:
+            song = c.lower().split(" ")[1]
+            if song in musicLibrary.music:
+                link = musicLibrary.music[song]
+                webbrowser.open(link)
+                speak(f"Playing {song}")
+            else:
+                speak(f"Song {song} not found in library")
+        except IndexError:
+            speak("Please specify a song name")
+    elif "news" in c.lower():
         speak("Opening News")
         webbrowser.open("https://news.google.com/home")
-    
     else:
-        # Let OpenAI handle other commands
-        pass
+        # Use OpenAI for other queries
+        if openai_available:
+            try:
+                completion = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": "You are Jarvis, a virtual assistant skilled in general tasks. Provide brief, helpful responses."},
+                        {"role": "user", "content": c}
+                    ]
+                )
+                response = completion.choices[0].message.content
+                speak(response)
+            except Exception as e:
+                speak("I didn't understand that command. Try 'open [website]' or 'play [song]'")
+        else:
+            speak("I didn't understand that command. Try 'open [website]' or 'play [song]'")
 
 if __name__=="__main__": 
     speak("Initializing Jarvis....")
     while True:
         # Listen for the wake word "Jarvis"
-        # obtainfrom the microphone
-        r = sr.Recognizer()
-       
-
         print("Recognizing...")
         try:
             with sr.Microphone() as source:
                 print("Listening...")
-                audio = r.listen(source, timeout=2, phrase_time_limit=1)
-            word = r.recognize_google(audio)
+                audio = recognizer.listen(source, timeout=2, phrase_time_limit=1)
+            word = recognizer.recognize_google(audio)
             if(word.lower() == "jarvis"):
-                speak("yes sir")
+                speak("Yes sir")
                 # listen for the command
                 with sr.Microphone() as source:
                     print("Jarvis Active...")
-                    audio = r.listen(source)
-                    command = r.recognize_google(audio)
-
+                    audio = recognizer.listen(source)
+                    command = recognizer.recognize_google(audio)
                     processCommand(command)
-
-
+        except sr.UnknownValueError:
+            print("Could not understand audio")
+        except sr.RequestError as e:
+            print(f"Could not request results; {e}")
         except Exception as e:
-            print("Error; {0}".format(e))
+            print(f"Error: {e}")

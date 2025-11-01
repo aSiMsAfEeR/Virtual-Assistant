@@ -12,7 +12,7 @@ engine = pyttsx3.init()
 
 # Initialize OpenAI client (optional - for advanced queries)
 try:
-    client = OpenAI(api_key="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")
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "YOUR_API_KEY_HERE"))
     openai_available = True
 except:
     openai_available = False
@@ -99,7 +99,10 @@ def index():
 def process():
     """Process command from the UI"""
     data = request.json
-    command = data.get('command', '')
+    if data is None:
+        return jsonify({'response': 'No data received'})
+        
+    command = data.get('command', '') if data else ''
     
     if not command:
         return jsonify({'response': 'No command received'})
@@ -107,7 +110,8 @@ def process():
     response = processCommand(command)
     
     # Optional: speak the response
-    if data.get('speak', False):
+    speak_response = data.get('speak', False) if data else False
+    if speak_response:
         speak(response)
     
     return jsonify({'response': response})
@@ -118,4 +122,4 @@ def get_music_library():
     return jsonify({'songs': list(musicLibrary.music.keys())})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000, host='0.0.0.0')

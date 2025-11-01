@@ -1,0 +1,77 @@
+Configuration Guide for Jarvis Flutter App
+============================================
+
+STEP 1: Update API Endpoint
+----------------------------
+File: lib/services/jarvis_api_service.dart
+Line: static const String baseUrl = '...';
+
+Choose the correct configuration based on your setup:
+
+Option A: Android Emulator
+  static const String baseUrl = 'http://10.0.2.2:5000';
+
+Option B: iOS Simulator
+  static const String baseUrl = 'http://localhost:5000';
+
+Option C: Physical Device (Replace with your computer's IP)
+  static const String baseUrl = 'http://192.168.1.XXX:5000';
+
+============================================
+How to find your IP address:
+============================================
+
+Windows:
+  1. Open Command Prompt
+  2. Type: ipconfig
+  3. Look for "IPv4 Address" (e.g., 192.168.1.100)
+
+macOS/Linux:
+  1. Open Terminal
+  2. Type: ifconfig | grep "inet "
+  3. Use the address shown (not 127.0.0.1)
+
+============================================
+STEP 2: Start Flask Backend
+============================================
+
+In terminal:
+  cd d:\1-Personal\Virtual-Assistant
+  python app.py
+
+Verify it shows: * Running on http://0.0.0.0:5000
+
+============================================
+STEP 3: Test Connection
+============================================
+
+From your phone's browser:
+  http://YOUR_IP:5000
+
+You should see the Jarvis web interface
+
+============================================
+STEP 4: Run Flutter App
+============================================
+
+  flutter run
+
+============================================
+Common Issues:
+============================================
+
+Issue: "Error connecting to Jarvis"
+Solution: 
+  - Check Flask is running
+  - Verify IP address is correct
+  - Check firewall allows port 5000
+
+Issue: "Permission denied for microphone"
+Solution:
+  - Settings > Apps > Jarvis > Permissions > Microphone
+
+Issue: Music library empty
+Solution:
+  - Check musicLibrary.py exists
+  - Restart Flask server
+  - Tap refresh button in app
