@@ -1,3 +1,5 @@
+import os
+from openai import OpenAI
 import speech_recognition as sr
 import webbrowser
 import pyttsx3
