@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis - Virtual Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            padding: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .assistant-message {
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .input-container {
+            padding: 20px 30px;
+            background: white;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        #commandInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        #commandInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .quick-actions {
+            padding: 20px 30px;
+            background: white;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 12px;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            color: #667eea;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .music-section {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .music-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .music-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .music-item {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .music-item:hover {
+            background: #764ba2;
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-container label {
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 JARVIS</h1>
+            <p>Your Personal Virtual Assistant</p>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message assistant-message">
+                Hello! I'm Jarvis. I can help you open websites, play music, get news, and answer questions. How can I assist you today?
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <p>Processing...</p>
+        </div>
+
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="commandInput" 
+                placeholder="Type your command here... (e.g., 'open youtube' or 'play interstellar')"
+                autocomplete="off"
+            >
+            <button onclick="sendCommand()">Send</button>
+        </div>
+
+        <div class="checkbox-container" style="padding: 10px 30px; background: white;">
+            <input type="checkbox" id="speakCheckbox" checked>
+            <label for="speakCheckbox">🔊 Enable voice response</label>
+        </div>
+
+        <div class="quick-actions">
+            <h3>⚡ Quick Actions</h3>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="quickCommand('open youtube')">📺 YouTube</button>
+                <button class="action-btn" onclick="quickCommand('open google')">🔍 Google</button>
+                <button class="action-btn" onclick="quickCommand('open gmail')">📧 Gmail</button>
+                <button class="action-btn" onclick="quickCommand('open github')">💻 GitHub</button>
+                <button class="action-btn" onclick="quickCommand('open linkedin')">💼 LinkedIn</button>
+                <button class="action-btn" onclick="quickCommand('open chatgpt')">🤖 ChatGPT</button>
+                <button class="action-btn" onclick="quickCommand('news')">📰 News</button>
+                <button class="action-btn" onclick="quickCommand('open clickup')">✅ ClickUp</button>
+            </div>
+        </div>
+
+        <div class="music-section">
+            <h3>🎵 Music Library</h3>
+            <div class="music-list" id="musicList">
+                <div class="music-item" onclick="quickCommand('play interstellar')">Interstellar</div>
+                <div class="music-item" onclick="quickCommand('play oppenheimer')">Oppenheimer</div>
+                <div class="music-item" onclick="quickCommand('play the dark knight')">The Dark Knight</div>
+                <div class="music-item" onclick="quickCommand('play interstellar2')">Interstellar 2</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const commandInput = document.getElementById('commandInput');
+        const loading = document.getElementById('loading');
+        const speakCheckbox = document.getElementById('speakCheckbox');
+
+        // Load music library on page load
+        window.addEventListener('load', loadMusicLibrary);
+
+        function loadMusicLibrary() {
+            fetch('/music-library')
+                .then(response => response.json())
+                .then(data => {
+                    const musicList = document.getElementById('musicList');
+                    musicList.innerHTML = '';
+                    data.songs.forEach(song => {
+                        const item = document.createElement('div');
+                        item.className = 'music-item';
+                        item.textContent = song.charAt(0).toUpperCase() + song.slice(1);
+                        item.onclick = () => quickCommand(`play ${song}`);
+                        musicList.appendChild(item);
+                    });
+                })
+                .catch(err => console.error('Error loading music library:', err));
+        }
+
+        function addMessage(text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function sendCommand() {
+            const command = commandInput.value.trim();
+            if (!command) return;
+
+            addMessage(command, true);
+            commandInput.value = '';
+            loading.classList.add('active');
+
+            fetch('/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    command: command,
+                    speak: speakCheckbox.checked
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.classList.remove('active');
+                addMessage(data.response);
+            })
+            .catch(error => {
+                loading.classList.remove('active');
+                addMessage('Error: ' + error.message);
+            });
+        }
+
+        function quickCommand(command) {
+            commandInput.value = command;
+            sendCommand();
+        }
+
+        // Allow Enter key to send command
+        commandInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendCommand();
+            }
+        });
+    </script>
+</body>
+</html>
